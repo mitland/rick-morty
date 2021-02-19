@@ -1,6 +1,6 @@
 #Rick and Morty
 
-## Instalation
+## Installation
     npm install
 
 ## Available Scripts
