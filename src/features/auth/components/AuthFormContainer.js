@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { authFormStyles } from '../styles/AuthFormStyles';
+import { authFormStyles } from './styles/AuthFormStyles';
 import { nameValidator } from '../utiles/authFormValidator';
 import { login } from '../reducers/authSlice';
 import AuthStorage from '../../../helpers/storage/AuthStorage';
