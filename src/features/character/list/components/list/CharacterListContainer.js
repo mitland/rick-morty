@@ -21,9 +21,7 @@ export default function CharacterListContainer() {
   const [characters, setCharacters] = useState([]);
 
   const abortRequests = useCallback(() => {
-    const {
-      current: { init, pagination },
-    } = requestsRef;
+    const { init, pagination } = requestsRef.current;
 
     init && init.controller.abort();
     pagination && pagination.controller.abort();
@@ -35,13 +33,12 @@ export default function CharacterListContainer() {
     const request = fetchCharacters({
       name,
     })
-      .then((response) => {
-        const { results: characters } = response;
-        setCharacters(characters);
-      })
-      .catch(() => setCharacters([]));
+      .then(getResponseCharacters)
+      .then(setCharacters)
+      .catch(resetCharacters);
 
     requestsRef.current.init = request;
+
     return abortRequests;
   }, [name, fetchCharacters, abortRequests]);
 
@@ -49,11 +46,15 @@ export default function CharacterListContainer() {
     const request = fetchCharacters({
       name,
       page,
-    }).then(({ results: characters }) => addCharacters(characters));
+    })
+      .then(getResponseCharacters)
+      .then(addCharacters);
 
     requestsRef.current.pagination = request;
   };
 
+  const getResponseCharacters = ({ results: characters }) => characters;
+  const resetCharacters = () => setCharacters([]);
   const addCharacters = (characters) => {
     setCharacters((prevCharacters) => [...prevCharacters, ...characters]);
   };
@@ -67,8 +68,7 @@ export default function CharacterListContainer() {
     if (!response) return createPageData(0);
     if (!response.info.next) return createPageData(0, false);
 
-    const nextPageURL = response.info.next.split('?')[1];
-    const { page: nextPage } = QueryString.parse(nextPageURL);
+    const nextPage = getPageFromURL(response.info.next);
     return createPageData(nextPage);
 
     function createPageData(nextPage, haveNext = true) {
@@ -76,6 +76,10 @@ export default function CharacterListContainer() {
         haveNext,
         nextPage,
       };
+    }
+    function getPageFromURL(url) {
+      const { page } = QueryString.parse(url.split('?')[1]);
+      return page;
     }
   };
 
